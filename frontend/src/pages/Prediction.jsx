@@ -5,39 +5,65 @@ function Prediction() {
   const result = location.state?.result
   const file = location.state?.file
 
+  // Find max value for progress scaling
+  const maxVal = result?.predictions
+    ? Math.max(...result.predictions)
+    : 1
+
   return (
     <div style={styles.container}>
       <div style={styles.wrapper}>
+        
+        {/* 🔥 Gradient Top Bar */}
+        <div style={styles.topBar}></div>
+
         <h1 style={styles.heading}>⚡ Prediction Results</h1>
 
         {file && (
           <p style={styles.fileText}>
-            Uploaded File: <strong>{file.name}</strong>
+            📄 Uploaded File: <strong>{file.name}</strong>
           </p>
         )}
 
         <div style={styles.grid}>
-          {/* Predicted Electricity Load */}
+          
+          {/* 📊 Prediction Card with Progress Bars */}
           <div style={styles.card}>
-            <h2 style={styles.cardTitle}>
-              Predicted Electricity Load (Next 24 Hours)
-            </h2>
+            <h2 style={styles.cardTitle}>📊 24-Hour Load Prediction</h2>
+
             {result?.predictions ? (
-              <ul style={styles.predictionList}>
-                {result.predictions.map((value, index) => (
-                  <li key={index}>
-                    Hour {index + 1}: {value} mW
-                  </li>
-                ))}
-              </ul>
+              <div style={styles.scrollBox}>
+                {result.predictions.map((value, index) => {
+                  const width = (value / maxVal) * 100
+
+                  return (
+                    <div key={index} style={styles.predictionBlock}>
+                      <div style={styles.predictionRow}>
+                        <span>Hour {index + 1}</span>
+                        <span style={styles.value}>{value} mW</span>
+                      </div>
+
+                      <div style={styles.progressBarBg}>
+                        <div
+                          style={{
+                            ...styles.progressBar,
+                            width: `${width}%`,
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
             ) : (
-              <p>Predictions will appear here</p>
+              <p>No predictions yet</p>
             )}
           </div>
 
-          {/* Load Forecast Graph */}
+          {/* 📈 Graph Card */}
           <div style={styles.card}>
-            <h2 style={styles.cardTitle}>Load Forecast Graph</h2>
+            <h2 style={styles.cardTitle}>📈 Forecast Graph</h2>
+
             {result?.graph ? (
               <img
                 src={`data:image/png;base64,${result.graph}`}
@@ -49,28 +75,24 @@ function Prediction() {
             )}
           </div>
 
-          {/* SHAP Explainable AI */}
-          <div style={styles.card}>
-            <h2 style={styles.cardTitle}>Explainable AI Insights</h2>
-            {result?.shap_top_feature ? (
-              <>
-                <p>
-                  <strong>Top Feature:</strong> {result.shap_top_feature} <br />
-                  <strong>SHAP Value:</strong>{" "}
-                  {result.shap_top_value.toFixed(4)}
-                </p>
+          {/* 🧠 AI Insight Card (DARK STYLE) */}
+          <div style={styles.shapCard}>
+            <h2 style={styles.cardTitleDark}>🧠 AI Insight</h2>
 
-                <h4>All Feature SHAP Values:</h4>
-                <ul style={styles.shapList}>
-                  {result.shap_all_features.map((f, i) => (
-                    <li key={i}>
-                      {f.feature}: {f.shap_value.toFixed(4)}
-                    </li>
-                  ))}
-                </ul>
-              </>
+            {result?.shap_top_feature ? (
+              <div style={styles.shapBox}>
+                <p style={styles.shapLabel}>Most Influential Feature</p>
+
+                <h2 style={styles.shapFeature}>
+                  {result.shap_top_feature}
+                </h2>
+
+                <p style={styles.shapValue}>
+                  Impact Score: {result.shap_top_value.toFixed(4)}
+                </p>
+              </div>
             ) : (
-              <p>SHAP output will appear here</p>
+              <p>No SHAP data</p>
             )}
           </div>
         </div>
@@ -79,79 +101,136 @@ function Prediction() {
   )
 }
 
-// 🎨 MATCHED STYLES (same as homepage theme)
 const styles = {
   container: {
     minHeight: "100vh",
-    padding: "100px 20px",
-    background: "#f5f7fa", // same as home
+    padding: "80px 20px",
+    background: "linear-gradient(135deg, #eef2f7, #d9e4f5)",
+    backgroundImage:
+      "radial-gradient(circle at top right, rgba(255,159,28,0.2), transparent)",
   },
 
   wrapper: {
-    width: "85%",
     maxWidth: "1100px",
     margin: "auto",
-    background: "rgba(255,255,255,0.65)",
-    backdropFilter: "blur(18px)",
-    borderRadius: "30px",
-    padding: "50px 30px",
-    boxShadow: "0 20px 50px rgba(0,0,0,0.15)",
-    animation: "fadeUp 1s ease",
+    background: "rgba(255,255,255,0.7)",
+    backdropFilter: "blur(20px)",
+    borderRadius: "25px",
+    padding: "40px",
+    boxShadow: "0 15px 40px rgba(0,0,0,0.1)",
+  },
+
+  topBar: {
+    height: "6px",
+    borderRadius: "10px",
+    background: "linear-gradient(90deg,#1e3c72,#ff9f1c)",
+    marginBottom: "25px",
   },
 
   heading: {
     textAlign: "center",
-    fontSize: "40px",
+    fontSize: "38px",
     fontWeight: "bold",
-    background: "linear-gradient(90deg,#1e3c72,#ff9f1c,#1e3c72)",
+    background: "linear-gradient(90deg,#1e3c72,#ff9f1c)",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
-    marginBottom: "20px",
+    marginBottom: "10px",
   },
 
   fileText: {
     textAlign: "center",
+    color: "#555",
     marginBottom: "30px",
-    fontSize: "18px",
-    color: "#444",
   },
 
   grid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+    gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
     gap: "25px",
   },
 
   card: {
-    background: "white",
-    padding: "25px",
-    borderRadius: "15px",
-    boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+    background: "linear-gradient(135deg, #ffffff, #f0f4ff)",
+    borderRadius: "16px",
+    padding: "20px",
+    boxShadow: "0 10px 30px rgba(30,60,114,0.15)",
   },
+
+shapCard: {
+  background: "linear-gradient(135deg, #f5f9ff, #e3ecff)",
+  borderRadius: "16px",
+  padding: "20px",
+  boxShadow: "0 10px 25px rgba(30,60,114,0.15)",
+},
 
   cardTitle: {
     color: "#1e3c72",
+    marginBottom: "15px",
+  },
+
+cardTitleDark: {
+  color: "#1e3c72",
+  marginBottom: "15px",
+},
+
+  scrollBox: {
+    maxHeight: "260px",
+    overflowY: "auto",
+  },
+
+  predictionBlock: {
     marginBottom: "12px",
   },
 
-  predictionList: {
-    listStyleType: "none",
-    padding: 0,
-    color: "#333",
+  predictionRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    fontSize: "14px",
   },
 
-  shapList: {
-    listStyleType: "none",
-    padding: 0,
-    maxHeight: "200px",
-    overflowY: "auto",
-    color: "#333",
+  progressBarBg: {
+    height: "6px",
+    background: "#ddd",
+    borderRadius: "10px",
+    marginTop: "5px",
+  },
+
+  progressBar: {
+    height: "6px",
+    borderRadius: "10px",
+    background: "linear-gradient(90deg,#1e3c72,#ff9f1c)",
+  },
+
+  value: {
+    fontWeight: "bold",
+    color: "#2a5298",
   },
 
   graph: {
     width: "100%",
-    borderRadius: "10px",
+    borderRadius: "12px",
+    boxShadow: "0 10px 20px rgba(0,0,0,0.2)",
   },
+
+  shapBox: {
+    textAlign: "center",
+    padding: "20px",
+  },
+shapLabel: {
+  color: "#666",
+},
+
+
+shapFeature: {
+  fontSize: "30px",
+  color: "#1e3c72",
+  margin: "10px 0",
+},
+
+shapValue: {
+  color: "#2a5298",
+  fontWeight: "bold",
+},
 }
 
 export default Prediction

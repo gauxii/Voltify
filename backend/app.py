@@ -121,17 +121,37 @@ def preprocess(file_path):
 # -----------------------
 def generate_forecast_graph(predictions):
 
-    plt.figure(figsize=(6, 4))
-    plt.plot(predictions)
+    plt.figure(figsize=(8, 4))  # bigger size
 
-    plt.title("Predicted Electricity Load")
-    plt.xlabel("Time Step")
-    plt.ylabel("Load (MW)")
+    x = np.arange(1, len(predictions) + 1)
 
+    plt.plot(
+        x,
+        predictions,
+        linewidth=3,
+        linestyle='-',
+        marker='o',
+        markersize=6
+    )
+
+    # Styling
+    plt.title("Electricity Load Forecast (Next 24 Hours)", fontsize=14, fontweight='bold')
+    plt.xlabel("Hour", fontsize=12)
+    plt.ylabel("Load (MW)", fontsize=12)
+
+    # Grid (soft)
+    plt.grid(True, linestyle='--', alpha=0.5)
+
+    # Remove top/right borders
+    plt.gca().spines['top'].set_visible(False)
+    plt.gca().spines['right'].set_visible(False)
+
+    # Tight layout
+    plt.tight_layout()
+
+    # Save image
     buf = io.BytesIO()
-
-    plt.savefig(buf, format="png")
-
+    plt.savefig(buf, format="png", dpi=150)
     buf.seek(0)
 
     graph_base64 = base64.b64encode(buf.getvalue()).decode("utf-8")
