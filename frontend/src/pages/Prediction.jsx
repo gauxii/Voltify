@@ -18,10 +18,18 @@ function Prediction() {
       <div style={styles.grid}>
         {/* Predicted Electricity Load */}
         <div style={styles.card}>
-          <h2>Predicted Electricity Load</h2>
-          <p style={styles.prediction}>
-            {result?.predictions ? `${result.predictions[0]} kW` : "---"}
-          </p>
+          <h2>Predicted Electricity Load (Next 24 Hours)</h2>
+          {result?.predictions ? (
+            <ul style={styles.predictionList}>
+              {result.predictions.map((value, index) => (
+                <li key={index}>
+                  Hour {index + 1}: {value} mW
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>Predictions will appear here</p>
+          )}
         </div>
 
         {/* Load Forecast Graph */}
@@ -38,15 +46,25 @@ function Prediction() {
           )}
         </div>
 
-        {/* SHAP Explainable AI Graph */}
+        {/* SHAP Explainable AI */}
         <div style={styles.card}>
           <h2>Explainable AI Insights</h2>
-          {result?.shap ? (
-            <img
-              src={`data:image/png;base64,${result.shap}`}
-              alt="SHAP Graph"
-              style={{ width: "100%", borderRadius: "10px" }}
-            />
+          {result?.shap_top_feature ? (
+            <>
+              <p>
+                <strong>Top Feature:</strong> {result.shap_top_feature} <br />
+                <strong>SHAP Value:</strong> {result.shap_top_value.toFixed(4)}
+              </p>
+
+              <h4>All Feature SHAP Values:</h4>
+              <ul style={styles.shapList}>
+                {result.shap_all_features.map((f, i) => (
+                  <li key={i}>
+                    {f.feature}: {f.shap_value.toFixed(4)}
+                  </li>
+                ))}
+              </ul>
+            </>
           ) : (
             <p>SHAP output will appear here</p>
           )}
@@ -85,11 +103,15 @@ const styles = {
     borderRadius: "15px",
     boxShadow: "0 8px 32px rgba(0,0,0,0.3)"
   },
-  prediction: {
-    fontSize: "32px",
-    fontWeight: "bold",
-    marginTop: "15px",
-    color: "#00ffcc"
+  predictionList: {
+    listStyleType: "none",
+    padding: 0
+  },
+  shapList: {
+    listStyleType: "none",
+    padding: 0,
+    maxHeight: "200px",
+    overflowY: "auto"
   }
 }
 
