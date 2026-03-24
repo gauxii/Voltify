@@ -29,7 +29,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
-CORS(app, resources={r"/predict": {"origins": "http://localhost:5173"}})
+CORS(app)
 
 
 # -----------------------
